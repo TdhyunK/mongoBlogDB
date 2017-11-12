@@ -7,8 +7,10 @@ cursor = db.blog.find({})
 for thing in cursor:
 	print (thing)
 # print("db: " + str(db))
+# db.collection.find().sort({age:-1}).limit(1)
+post_counter = db.blog.find().sort("entry_id",-1).limit(1)[0]['entry_id']
 
-post_counter = 0
+# print("POST COUNTER: " + str(post_counter[0]['entry_id']))
 
 # post blogName userName title postBody tags
 def post(blog_name, user_name, title, post_body, tags):
@@ -30,8 +32,10 @@ def post(blog_name, user_name, title, post_body, tags):
 # # comment blogname entryID userName commentBody
 def comment(blog_name, entry_ID, user_name, comment_body):
 	global post_counter
-	found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
-	comment_post = {"user_name" : user_name, "comment_body" : comment_body, "entry_id" : post_counter }
+	# found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
+	found_id = db.blog.find_one({"entry_id": 0, "blog_name": "thomasblog"})
+
+	comment_post = {"user_name" : user_name, "comment_body" : comment_body, "entry_id" : post_counter}
 	if found_id:
 		db.blog.update_one({"entry_id": entry_ID}, {'$push':{"comments": comment_post}})
 	post_counter += 1
@@ -39,12 +43,40 @@ def comment(blog_name, entry_ID, user_name, comment_body):
 
 
 
-# # delete blogname entryID userName
-# def delete(blog_name, entry_ID, user_name):
+# delete blogname entryID userName
+def delete(blog_name, entry_ID, user_name):
+	print("delete trigger")
+	return_val = db.blog.find({'blog_name': blog_name, 'entry_id': int(entry_ID)})
+	# return_val = db.blog.find()
+	print("return val: " + str(return_val))
+	for thing in return_val:
+		print("ITERATION")
+		print("THING: " + str(thing))
+
+	delete_string = "deted by"
+
+	db.blog.update_one({'blog_name': blog_name, 'entry_ID': int(entry_ID)},
+		{ '$set': {'post_body': delete_string }}, upsert=False)
+	
+	
+# 	# found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
+#     # if found_id:
+#     try {
+# 			db.blog.replaceOne(
+#           { "post_body" : "deleted by {user_name} on {date}" },
+#           { "blog_name" : blog_name, "entry_ID" : entry_ID }
+# 			);
+#     } catch (e){
+# 			# { "acknowledged": true, "matchedCount": 0, "modifiedCount": 0 }
+#       print("Cannot find the entry you are trying to delete.");
+#     }
 
 
-# # show blogName
+# show blogName
 # def show(blog_name):
+#     cursor = collection.find({})
+#     for document in cursor:
+#           print(document)
 
 def user_query():
 	user_query = input("Welcome to the journal database. Please enter your query")
