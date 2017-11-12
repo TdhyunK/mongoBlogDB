@@ -74,10 +74,10 @@ def delete(blog_name, entry_ID, user_name):
 
 
 # show blogName
-# def show(blog_name):
-#     cursor = collection.find({})
-#     for document in cursor:
-#           print(document)
+def show(blog_name):
+	cursor = db.blog.find({"blog_name": blog_name})
+	for document in cursor:
+		print(document)
 
 def user_query():
 	user_query = input("Welcome to the journal database. Please enter your query")
