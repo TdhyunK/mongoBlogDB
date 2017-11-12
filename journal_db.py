@@ -2,9 +2,9 @@ import pymongo
 
 client = pymongo.MongoClient("mongodb://Team08:9vPYcYlOdB8dmFBe@cluster0-shard-00-00-ppp7l.mongodb.net:27017,cluster0-shard-00-01-ppp7l.mongodb.net:27017,cluster0-shard-00-02-ppp7l.mongodb.net:27017/Team08DB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin")
 db = client.Team08DB
+# db.blog.drop()
 cursor = db.blog.find({})
 for thing in cursor:
-	print("JASL;DFKS")
 	print (thing)
 # print("db: " + str(db))
 
@@ -19,6 +19,7 @@ def post(blog_name, user_name, title, post_body, tags):
 		"title": title,
 		"post_body": post_body,
 		"tags": tags,
+		"comments": [],
 		"entry_id": post_counter
 		})
 	post_counter += 1
@@ -27,7 +28,14 @@ def post(blog_name, user_name, title, post_body, tags):
 
 
 # # comment blogname entryID userName commentBody
-# def comment(blog_name, entry_ID, user_name, comment_body):
+def comment(blog_name, entry_ID, user_name, comment_body):
+	global post_counter
+	found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
+	comment_post = {"user_name" : user_name, "comment_body" : comment_body, "entry_id" : post_counter }
+	if found_id:
+		db.blog.update_one({"entry_id": entry_ID}, {'$push':{"comments": comment_post}})
+	post_counter += 1
+
 
 
 
