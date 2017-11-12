@@ -1,6 +1,9 @@
 import pymongo
 
 client = pymongo.MongoClient("mongodb://Team08:9vPYcYlOdB8dmFBe@cluster0-shard-00-00-ppp7l.mongodb.net:27017,cluster0-shard-00-01-ppp7l.mongodb.net:27017,cluster0-shard-00-02-ppp7l.mongodb.net:27017/Team08DB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin")
+
+print("Mongo version",pymongo.__version__)
+
 db = client.Team08DB
 # db.blog.drop()
 cursor = db.blog.find({})
@@ -26,22 +29,16 @@ def post(blog_name, user_name, title, post_body, tags):
 		})
 	post_counter += 1
 
-
-
-
 # # comment blogname entryID userName commentBody
 def comment(blog_name, entry_ID, user_name, comment_body):
 	global post_counter
 	# found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
-	found_id = db.blog.find_one({"entry_id": 0, "blog_name": "thomasblog"})
+	found_id = db.blog.find_one({'entry_id': int(entry_ID), 'blog_name': blog_name})
 
 	comment_post = {"user_name" : user_name, "comment_body" : comment_body, "entry_id" : post_counter}
 	if found_id:
-		db.blog.update_one({"entry_id": entry_ID}, {'$push':{"comments": comment_post}})
+		db.blog.update_many({'entry_id': int(entry_ID), 'blog_name': blog_name}, {'$push':{'comments': comment_post}})
 	post_counter += 1
-
-
-
 
 # delete blogname entryID userName
 def delete(blog_name, entry_ID, user_name):
@@ -53,10 +50,14 @@ def delete(blog_name, entry_ID, user_name):
 		print("ITERATION")
 		print("THING: " + str(thing))
 
-	delete_string = "deted by"
+	delete_string = "test update"
 
-	db.blog.update_one({'blog_name': blog_name, 'entry_ID': int(entry_ID)},
-		{ '$set': {'post_body': delete_string }}, upsert=False)
+	sol = db.blog.update_many({'blog_name': blog_name, 'entry_id': int(entry_ID)},
+	{'$set': {'post_body': delete_string}}, upsert=True)
+	# print("SOL: " + str(sol))
+	# for cursor in sol:
+		# print("cursor: " + str(cursor))
+
 	
 	
 # 	# found_id = db.blog.find_one({"entry_id": entry_ID, "blog_name": blog_name})
