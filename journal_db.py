@@ -2,10 +2,27 @@ import pymongo
 
 client = pymongo.MongoClient("mongodb://Team08:9vPYcYlOdB8dmFBe@cluster0-shard-00-00-ppp7l.mongodb.net:27017,cluster0-shard-00-01-ppp7l.mongodb.net:27017,cluster0-shard-00-02-ppp7l.mongodb.net:27017/Team08DB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin")
 db = client.Team08DB
-print("db: " + str(db))
+cursor = db.blog.find({})
+for thing in cursor:
+	print("JASL;DFKS")
+	print (thing)
+# print("db: " + str(db))
+
+post_counter = 0
 
 # post blogName userName title postBody tags
-# def post(blog_name, user_name, title, post_body, tags):
+def post(blog_name, user_name, title, post_body, tags):
+	global post_counter
+	result = db.blog.insert_one({
+		"blog_name": blog_name,
+		"user_name": user_name,
+		"title": title,
+		"post_body": post_body,
+		"tags": tags,
+		"entry_id": post_counter
+		})
+	post_counter += 1
+
 
 
 
@@ -24,12 +41,12 @@ print("db: " + str(db))
 def user_query():
 	user_query = input("Welcome to the journal database. Please enter your query")
 	user_query = user_query.strip().split(" ")
-	if user_query[0] == "post" and len(user_query) == 6:
+	if user_query[0] == "post" and (len(user_query) == 6 or len(user_query) == 5):
 		blog_name = user_query[1]
 		user_name = user_query[2]
 		title = user_query[3]
 		post_body = user_query[4]
-		tags = user_query[5]
+		tags = user_query[5] if len(user_query) == 6 else None
 		post(blog_name, user_name, title, post_body, tags)
 	elif user_query[0] == "comment" and len(user_query) == 5:
 		blog_name = user_query[1]
